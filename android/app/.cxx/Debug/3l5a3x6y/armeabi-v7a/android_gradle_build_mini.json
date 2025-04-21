@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/colecrawley/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/colecrawley/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/Debug/3l5a3x6y/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/colecrawley/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/Debug/3l5a3x6y/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

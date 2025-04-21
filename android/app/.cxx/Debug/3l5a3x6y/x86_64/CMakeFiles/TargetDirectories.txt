@@ -1,0 +1,2 @@
+/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/Debug/3l5a3x6y/x86_64/CMakeFiles/edit_cache.dir
+/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/Debug/3l5a3x6y/x86_64/CMakeFiles/rebuild_cache.dir
