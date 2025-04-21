@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- External storage -->
+    <external-path name="external_files" path="." />
+
+    <!-- Cache directory -->
+    <cache-path name="cache_files" path="/" />
+
+    <!-- For camera photos -->
+    <external-files-path name="my_images" path="Pictures" />
+    <external-files-path name="my_captures" path="." />
+
+    <!-- For Android 10+ scoped storage -->
+    <external-media-path name="external_media" path="." />
+</paths>

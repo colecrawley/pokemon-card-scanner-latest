@@ -1,0 +1,2 @@
+/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/RelWithDebInfo/2i3u221u/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/colecrawley/Downloads/pokemon_card_scanner_app-master/android/app/.cxx/RelWithDebInfo/2i3u221u/armeabi-v7a/CMakeFiles/rebuild_cache.dir
