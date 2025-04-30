@@ -5,6 +5,7 @@ import 'package:image/image.dart' as img;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 import '../models/pokemon_card.dart';
 import '../services/tflite_helper.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
@@ -34,7 +35,7 @@ class _CameraPageState extends State<CameraPage> {
   bool _isProcessing = false;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey();
   final ImagePicker _picker = ImagePicker();
-  final GlobalKey _cameraOverlayKey = GlobalKey();
+  File? _croppedFile;
 
   @override
   void initState() {
@@ -159,8 +160,8 @@ class _CameraPageState extends State<CameraPage> {
               child: LiquidPullToRefresh(
                 key: _refreshIndicatorKey,
                 onRefresh: _handleRefresh,
-                color: Colors.blue.shade100,  // Start color of gradient
-                backgroundColor: Colors.green.shade100,  // End color of gradient
+                color: Colors.blue.shade100,
+                backgroundColor: Colors.green.shade100,
                 height: 100,
                 animSpeedFactor: 1.5,
                 showChildOpacityTransition: false,
@@ -200,26 +201,7 @@ class _CameraPageState extends State<CameraPage> {
             if (snapshot.hasError) {
               return Center(child: Text('Camera error: ${snapshot.error}'));
             }
-            return Stack(
-              key: _cameraOverlayKey,
-              children: [
-                Positioned.fill(child: CameraPreview(_controller)),
-                Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    height: MediaQuery.of(context).size.width * 1.1,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.red.withOpacity(0.7),
-                        width: 2.0,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.transparent,
-                    ),
-                  ),
-                ),
-              ],
-            );
+            return CameraPreview(_controller);
           }
           return const Center(child: CircularProgressIndicator());
         },
@@ -293,9 +275,20 @@ class _CameraPageState extends State<CameraPage> {
 
       if (pickedFile != null && mounted) {
         setState(() => _isProcessing = true);
-        final processedImagePath = await _preprocessImageForModel(pickedFile.path);
-        if (mounted) {
-          _showCardConfirmationDialog(context, processedImagePath);
+
+        // Show cropping screen for gallery images too
+        final croppedFile = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ImageCropperScreen(imagePath: pickedFile.path),
+          ),
+        );
+
+        if (croppedFile != null && mounted) {
+          final processedImagePath = await _preprocessImageForModel(croppedFile.path);
+          if (mounted) {
+            _showCardConfirmationDialog(context, processedImagePath);
+          }
         }
       }
     } catch (e) {
@@ -318,12 +311,20 @@ class _CameraPageState extends State<CameraPage> {
 
       if (!mounted) return;
 
-      setState(() => _isProcessing = true);
+      // Show cropping screen
+      final croppedFile = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageCropperScreen(imagePath: imageFile.path),
+        ),
+      );
 
-      final croppedImagePath = await _cropImageToRedBox(imageFile.path);
-      final processedImagePath = await _preprocessImageForModel(croppedImagePath);
-      if (mounted) {
-        _showCardConfirmationDialog(context, processedImagePath);
+      if (croppedFile != null && mounted) {
+        setState(() => _isProcessing = true);
+        final processedImagePath = await _preprocessImageForModel(croppedFile.path);
+        if (mounted) {
+          _showCardConfirmationDialog(context, processedImagePath);
+        }
       }
     } catch (e) {
       debugPrint('Error taking picture: $e');
@@ -334,35 +335,6 @@ class _CameraPageState extends State<CameraPage> {
           _isProcessing = false;
         });
       }
-    }
-  }
-
-  Future<String> _cropImageToRedBox(String imagePath) async {
-    try {
-      final bytes = await File(imagePath).readAsBytes();
-      var image = img.decodeImage(bytes);
-      if (image == null) throw Exception("Invalid image");
-
-      final boxWidth = (MediaQuery.of(context).size.width * 0.7).toInt();
-      final boxHeight = (boxWidth * 1.1).toInt();
-      final offsetX = (image.width - boxWidth) ~/ 2;
-      final offsetY = (image.height - boxHeight) ~/ 2;
-
-      final croppedImage = img.copyCrop(
-        image,
-        offsetX,
-        offsetY,
-        boxWidth,
-        boxHeight,
-      );
-
-      final croppedFile = File('${imagePath}_cropped.jpg');
-      await croppedFile.writeAsBytes(img.encodeJpg(croppedImage));
-
-      return croppedFile.path;
-    } catch (e) {
-      debugPrint('Image cropping error: $e');
-      return imagePath;
     }
   }
 
@@ -674,5 +646,126 @@ class _CameraPageState extends State<CameraPage> {
           child: const Text('Yes', style: TextStyle(color: Colors.green)),
         ),
     ];
+  }
+}
+
+class ImageCropperScreen extends StatefulWidget {
+  final String imagePath;
+
+  const ImageCropperScreen({super.key, required this.imagePath});
+
+  @override
+  _ImageCropperScreenState createState() => _ImageCropperScreenState();
+}
+
+class _ImageCropperScreenState extends State<ImageCropperScreen> {
+  File? _croppedFile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Crop Your Card'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done),
+            onPressed: () async {
+              if (_croppedFile != null) {
+                Navigator.pop(context, _croppedFile);
+              }
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder(
+              future: _cropImage(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  return Center(
+                    child: _croppedFile != null
+                        ? Image.file(_croppedFile!)
+                        : const Text('No image cropped yet'),
+                  );
+                }
+                return const Center(child: CircularProgressIndicator());
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+              onPressed: () async {
+                CroppedFile? cropped = await ImageCropper().cropImage(
+                  sourcePath: widget.imagePath,
+                  aspectRatio: const CropAspectRatio(ratioX: 0.7, ratioY: 1.1),
+                  compressQuality: 90,
+                  maxWidth: 1800,
+                  maxHeight: 1800,
+                  uiSettings: [
+                    AndroidUiSettings( // Added const here
+                      toolbarTitle: 'Crop Card',
+                      toolbarColor: Colors.blue,
+                      toolbarWidgetColor: Colors.white,
+                      initAspectRatio: CropAspectRatioPreset.original,
+                      lockAspectRatio: false,
+                      showCropGrid: true,
+                    ),
+                    IOSUiSettings( // Added const here
+                      title: 'Crop Card',
+                      aspectRatioLockEnabled: false,
+                      resetAspectRatioEnabled: true,
+                      showActivitySheetOnDone: false,
+                    ),
+                  ],
+                );
+
+                if (cropped != null) {
+                  setState(() {
+                    _croppedFile = File(cropped.path);
+                  });
+                }
+              },
+              child: const Text('Adjust Crop'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _cropImage() async {
+    CroppedFile? cropped = await ImageCropper().cropImage(
+      sourcePath: widget.imagePath,
+      aspectRatio: const CropAspectRatio(ratioX: 0.7, ratioY: 1.1),
+      compressQuality: 90,
+      maxWidth: 1800,
+      maxHeight: 1800,
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Card',
+          toolbarColor: Colors.blue,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+          showCropGrid: true,
+        ),
+        IOSUiSettings(
+          title: 'Crop Card',
+          aspectRatioLockEnabled: false,
+          resetAspectRatioEnabled: true,
+          showActivitySheetOnDone: false,
+        ),
+      ],
+    );
+
+    if (cropped != null) {
+      _croppedFile = File(cropped.path);
+    }
   }
 }
