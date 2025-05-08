@@ -9,7 +9,8 @@
         android:label="test_scanner_app"
         android:icon="@mipmap/ic_launcher"
         android:name="${applicationName}"
-        android:requestLegacyExternalStorage="true">
+        android:requestLegacyExternalStorage="true"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
             android:name=".MainActivity"

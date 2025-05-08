@@ -132,100 +132,105 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _editUsername() async {
+    final TextEditingController controller = TextEditingController(text: _username);
     final newUsername = await showDialog<String>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: Text(
-              'Edit Username',
-              style: TextStyle(
-                foreground: Paint()
-                  ..shader = LinearGradient(
-                    colors: [
-                      Colors.blue.shade700,
-                      Colors.green.shade700,
-                    ],
-                  ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-              ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Edit Username',
+            style: TextStyle(
+              foreground: Paint()
+                ..shader = LinearGradient(
+                  colors: [
+                    Colors.blue.shade700,
+                    Colors.green.shade700,
+                  ],
+                ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
             ),
-            content: TextFormField(
-              initialValue: _username,
-              decoration: InputDecoration(
-                hintText: 'Enter new username',
-                border: const OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.teal.shade600),
-                ),
-              ),
-              maxLength: 20,
-              onFieldSubmitted: (value) => Navigator.pop(context, value),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                    'Cancel', style: TextStyle(color: Colors.teal.shade600)),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, _username),
-                child: Text(
-                    'Save', style: TextStyle(color: Colors.teal.shade600)),
-              ),
-            ],
           ),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Enter new username',
+              border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.teal.shade600),
+              ),
+            ),
+            maxLength: 20,
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.teal.shade600),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.teal.shade600),
+              ),
+            ),
+          ],
+        );
+      },
     );
 
-    if (newUsername != null && newUsername.isNotEmpty) {
+    if (newUsername != null && newUsername.isNotEmpty && newUsername != _username) {
       setState(() => _username = newUsername);
       await _saveUsername(newUsername);
     }
   }
 
   void _editBio() async {
+    final TextEditingController controller = TextEditingController(text: _bio);
     final newBio = await showDialog<String>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: Text(
-              'Edit Bio',
-              style: TextStyle(
-                foreground: Paint()
-                  ..shader = LinearGradient(
-                    colors: [
-                      Colors.blue.shade700,
-                      Colors.green.shade700,
-                    ],
-                  ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-              ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Edit Bio',
+            style: TextStyle(
+              foreground: Paint()
+                ..shader = LinearGradient(
+                  colors: [
+                    Colors.blue.shade700,
+                    Colors.green.shade700,
+                  ],
+                ).createShader(const Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
             ),
-            content: TextFormField(
-              initialValue: _bio,
-              decoration: InputDecoration(
-                hintText: 'Tell us about yourself',
-                border: const OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.teal.shade600),
-                ),
-              ),
-              maxLines: 5,
-              maxLength: 500,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                    'Cancel', style: TextStyle(color: Colors.teal.shade600)),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, _bio),
-                child: Text(
-                    'Save', style: TextStyle(color: Colors.teal.shade600)),
-              ),
-            ],
           ),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'Tell us about yourself',
+              border: const OutlineInputBorder(),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.teal.shade600),
+              ),
+            ),
+            maxLines: 5,
+            maxLength: 500,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: Colors.teal.shade600)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: Text('Save', style: TextStyle(color: Colors.teal.shade600)),
+            ),
+          ],
+        );
+      },
     );
 
-    if (newBio != null && newBio.isNotEmpty) {
+    if (newBio != null && newBio.isNotEmpty && newBio != _bio) {
       setState(() => _bio = newBio);
       await _saveBio(newBio);
     }

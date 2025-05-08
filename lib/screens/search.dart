@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 import 'dart:convert';
 import '../models/pokemon_card.dart';
 import '../services/database_helper.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart'; // Import the package
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -24,7 +27,6 @@ class _SearchPageState extends State<SearchPage> {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // Set of allowed set codes
   final List<String> allowedSetCodes = ['23237', '604', '630', '635', '1418'];
 
   @override
@@ -73,17 +75,42 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  // ✅ ALWAYS trust the certificate (debug + release)
+  Future<http.Client> _getHttpClient() async {
+    final ioClient = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return IOClient(ioClient);
+  }
+
   Future<void> _fetchPokemonCards() async {
     try {
       const pokemonCategory = '3';
       List<String> allProductIds = [];
 
+      final client = await _getHttpClient();
+
       for (final setCode in allowedSetCodes) {
         final productsUrl = Uri.parse('https://tcgcsv.com/tcgplayer/$pokemonCategory/$setCode/products');
-        final response = await http.get(productsUrl).timeout(const Duration(seconds: 15));
+        final response = await client.get(
+          productsUrl,
+          headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 15));
+
+// Log response status and headers
+        print('Status Code: ${response.statusCode}');
+        print('Response Headers: ${response.headers}');
+        print('Response Body: ${response.body}');
 
         if (response.statusCode != 200) {
           throw Exception('API returned ${response.statusCode}');
+        }
+
+        // Check for HTML content (error page)
+        if (response.body.contains('DOCTYPE html')) {
+          throw Exception('Received HTML response. Possible API error or unexpected page.');
         }
 
         final data = json.decode(response.body);
@@ -98,7 +125,7 @@ class _SearchPageState extends State<SearchPage> {
             id: productId,
             name: json['name'] ?? 'Unknown',
             imageUrl: json['imageUrl'] ?? 'https://via.placeholder.com/150',
-            marketPrice: 0.0, // Will be updated later
+            marketPrice: 0.0,
             priceChange: 0.0,
             setCode: json['setCode'] ?? 'Unknown',
             cardNumber: json['cardNumber'] ?? 'N/A',
@@ -108,10 +135,8 @@ class _SearchPageState extends State<SearchPage> {
         _allCards.addAll(newCards);
       }
 
-      // Remove duplicates
       _allCards = _allCards.toSet().toList();
 
-      // Fetch prices in bulk for all cards
       await _fetchCardPrices();
 
       final newSetCodes = _allCards
@@ -130,27 +155,41 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+
   Future<void> _fetchCardPrices() async {
     try {
       const pokemonCategory = '3';
 
-      // Fetch prices for each set
       for (final setCode in allowedSetCodes) {
-        final priceUrl = Uri.parse(
-            'https://tcgcsv.com/tcgplayer/$pokemonCategory/$setCode/prices');
-        final priceResponse = await http.get(priceUrl).timeout(const Duration(seconds: 15));
+        final priceUrl = Uri.parse('https://tcgcsv.com/tcgplayer/$pokemonCategory/$setCode/prices');
+        final priceResponse = await http.get(
+          priceUrl,
+          headers: {
+            'User-Agent': 'Mozilla/5.0',
+            'Accept': 'application/json',
+          },
+        ).timeout(const Duration(seconds: 15));
+
+        // Log the raw response body
+        print('Price Response Body: ${priceResponse.body}');
 
         if (priceResponse.statusCode == 200) {
+          // Check for HTML content (error page)
+          if (priceResponse.body.contains('DOCTYPE html')) {
+            throw Exception('Received HTML response. Possible API error or unexpected page.');
+          }
+
           final priceData = json.decode(priceResponse.body);
           final priceMap = Map<String, dynamic>.from(priceData['results'] ?? {});
 
-          // Update prices in _allCards
           for (var card in _allCards) {
             final priceInfo = priceMap[card.id];
             if (priceInfo != null && priceInfo['marketPrice'] != null) {
               card.marketPrice = double.tryParse(priceInfo['marketPrice'].toString()) ?? 0.0;
             }
           }
+        } else {
+          throw Exception('API returned ${priceResponse.statusCode}');
         }
       }
     } catch (e) {
@@ -159,6 +198,7 @@ class _SearchPageState extends State<SearchPage> {
       });
     }
   }
+
 
   void _filterCards() {
     final searchTerm = _searchController.text.toLowerCase();
@@ -205,7 +245,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return LiquidPullToRefresh(
       onRefresh: _handleRefresh,
-      color: Colors.blue.shade100, // Start color of gradient
+      color: Colors.blue.shade100,
       backgroundColor: Colors.green.shade100,
       height: 100,
       animSpeedFactor: 1.5,
@@ -249,7 +289,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Expanded(
               child: ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(), // Important for LiquidPullToRefresh
+                physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: _filteredCards.length,
                 itemBuilder: (context, index) {
                   final card = _filteredCards[index];
@@ -257,7 +297,7 @@ class _SearchPageState extends State<SearchPage> {
                   return ListTile(
                     leading: Image.network(card.imageUrl, width: 50, height: 70),
                     title: Text(card.name),
-                    subtitle: const Text('Price: Hidden'), // Hide price on the search page
+                    subtitle: const Text('Price: Hidden'),
                     trailing: IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: () => _addToPortfolio(card),

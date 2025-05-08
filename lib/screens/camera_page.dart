@@ -101,7 +101,7 @@ class _CameraPageState extends State<CameraPage> {
   Future<void> _testApiConnection() async {
     try {
       const testUrl = 'https://tcgcsv.com/tcgplayer/3/23237/products';
-      final response = await http.get(Uri.parse(testUrl)).timeout(const Duration(seconds: 10));
+      final response = await http.get(Uri.parse(testUrl)).timeout(const Duration(seconds: 30));
 
       setState(() {
         _apiTestComplete = true;
@@ -433,7 +433,7 @@ class _CameraPageState extends State<CameraPage> {
           'https://tcgcsv.com/tcgplayer/$pokemonCategory/$setCode/products'
       );
       final productsResponse = await http.get(productsUrl)
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 30));
 
       if (productsResponse.statusCode != 200) {
         throw Exception('API returned ${productsResponse.statusCode}');
@@ -479,7 +479,7 @@ class _CameraPageState extends State<CameraPage> {
           'https://tcgcsv.com/tcgplayer/$pokemonCategory/$setCode/prices'
       );
       final pricesResponse = await http.get(pricesUrl)
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 30));
 
       final marketPrice = pricesResponse.statusCode == 200
           ? _parsePriceFromResponse(pricesResponse.body, targetProduct['productId'])
