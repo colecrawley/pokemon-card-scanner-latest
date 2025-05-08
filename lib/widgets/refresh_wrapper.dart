@@ -25,8 +25,8 @@ class RefreshScaffold extends StatelessWidget {
       floatingActionButton: floatingActionButton,
       body: LiquidPullToRefresh(
         onRefresh: onRefresh,
-        color: Colors.blue.shade100,  // Start color of gradient
-        backgroundColor: Colors.green.shade100,  // End color of gradient
+        color: Colors.blue.shade100,
+        backgroundColor: Colors.green.shade100,
         height: 150,
         springAnimationDurationInMilliseconds: 500,
         showChildOpacityTransition: false,

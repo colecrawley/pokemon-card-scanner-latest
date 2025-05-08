@@ -84,7 +84,7 @@ class HomePageState extends State<HomePage> {
     double currentValue = 0.0;
 
     for (final card in _portfolioCards) {
-      initialValue += card.lastMarketPrice ?? card.marketPrice; // Use lastMarketPrice if available
+      initialValue += card.lastMarketPrice ?? card.marketPrice; //use last marketprice if anything happens
       currentValue += card.marketPrice;
     }
 
@@ -99,7 +99,7 @@ class HomePageState extends State<HomePage> {
       for (var card in _portfolioCards) {
         final updatedCard = await _fetchUpdatedCardData(card);
         updatedCards.add(updatedCard);
-        // Update the card in the database, including saving the current price as lastMarketPrice
+
         await _dbHelper.updateCard(updatedCard.copyWith(lastMarketPrice: card.marketPrice));
       }
       setState(() {
@@ -157,7 +157,7 @@ class HomePageState extends State<HomePage> {
       priceChange: priceChange,
       setCode: card.setCode,
       cardNumber: card.cardNumber,
-      lastMarketPrice: card.marketPrice, // Temporarily set for the current update
+      lastMarketPrice: card.marketPrice,
     );
   }
 
@@ -178,8 +178,8 @@ class HomePageState extends State<HomePage> {
           : _selectedIndex == 2
           ? LiquidPullToRefresh(
         onRefresh: _handleRefresh,
-        color: Colors.blue.shade100,  // Start color of gradient
-        backgroundColor: Colors.green.shade100,  // End color of gradient
+        color: Colors.blue.shade100,
+        backgroundColor: Colors.green.shade100,
         height: 100,
         animSpeedFactor: 1.5,
         showChildOpacityTransition: false,
@@ -305,8 +305,8 @@ class HomePageState extends State<HomePage> {
         gradient: LinearGradient(
           colors: isDarkMode
               ? [
-            Colors.blue.shade800, // Darker blue
-            Colors.green.shade800, // Darker green
+            Colors.blue.shade800,
+            Colors.green.shade800,
           ]
               : [
             Colors.blue.shade100,

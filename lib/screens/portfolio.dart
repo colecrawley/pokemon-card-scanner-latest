@@ -86,7 +86,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
 
       setState(() {
         _cards = updatedCards;
-        _filterCards(_searchController.text); // Reapply the search filter
+        _filterCards(_searchController.text);
         _previousPrices = newPreviousPrices;
       });
     } catch (e) {

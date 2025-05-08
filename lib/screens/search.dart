@@ -75,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  // ✅ ALWAYS trust the certificate (debug + release)
+
   Future<http.Client> _getHttpClient() async {
     final ioClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
@@ -99,7 +99,7 @@ class _SearchPageState extends State<SearchPage> {
           },
         ).timeout(const Duration(seconds: 15));
 
-// Log response status and headers
+
         print('Status Code: ${response.statusCode}');
         print('Response Headers: ${response.headers}');
         print('Response Body: ${response.body}');
@@ -108,7 +108,7 @@ class _SearchPageState extends State<SearchPage> {
           throw Exception('API returned ${response.statusCode}');
         }
 
-        // Check for HTML content (error page)
+
         if (response.body.contains('DOCTYPE html')) {
           throw Exception('Received HTML response. Possible API error or unexpected page.');
         }
@@ -170,11 +170,11 @@ class _SearchPageState extends State<SearchPage> {
           },
         ).timeout(const Duration(seconds: 15));
 
-        // Log the raw response body
+
         print('Price Response Body: ${priceResponse.body}');
 
         if (priceResponse.statusCode == 200) {
-          // Check for HTML content (error page)
+
           if (priceResponse.body.contains('DOCTYPE html')) {
             throw Exception('Received HTML response. Possible API error or unexpected page.');
           }

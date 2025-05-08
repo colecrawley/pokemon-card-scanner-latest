@@ -55,7 +55,7 @@ class SettingsPage extends StatelessWidget {
                 title: 'Account Information',
                 subtitle: 'Manage your account details',
                 onTap: () {
-                  // TODO: Navigate to account info page
+
                 },
               ),
               _buildSettingTile(
@@ -63,7 +63,7 @@ class SettingsPage extends StatelessWidget {
                 title: 'Notifications',
                 subtitle: 'Manage your notification preferences',
                 onTap: () {
-                  // TODO: Navigate to notifications page
+
                 },
               ),
             ],
@@ -77,7 +77,7 @@ class SettingsPage extends StatelessWidget {
                 title: 'About',
                 subtitle: 'Learn more about the app',
                 onTap: () {
-                  // TODO: Navigate to about page
+
                 },
               ),
               _buildSettingTile(
@@ -85,7 +85,7 @@ class SettingsPage extends StatelessWidget {
                 title: 'Help & Support',
                 subtitle: 'Get assistance with the app',
                 onTap: () {
-                  // TODO: Navigate to help page
+
                 },
               ),
               _buildSettingTile(
@@ -93,7 +93,7 @@ class SettingsPage extends StatelessWidget {
                 title: 'Logout',
                 subtitle: 'Sign out of your account',
                 onTap: () {
-                  // TODO: Implement logout functionality
+
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
@@ -106,7 +106,7 @@ class SettingsPage extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () {
-                            // TODO: Implement logout logic
+
                             Navigator.pop(context);
                           },
                           child: const Text('Logout'),
@@ -145,7 +145,7 @@ class SettingsPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              // Using a gradient text color that matches the theme but darker
+
               foreground: Paint()
                 ..shader = LinearGradient(
                   colors: [
@@ -180,7 +180,7 @@ class SettingsPage extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        // Using a darker blue-green color for icons to match the theme
+
         color: Colors.teal.shade600,
       ),
       title: Text(title),

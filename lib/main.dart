@@ -9,7 +9,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // Initialize both camera and database simultaneously
+    // start both camera and database at the same time
     final results = await Future.wait([
       availableCameras(),
       DatabaseHelper.instance.database,
@@ -23,7 +23,7 @@ Future<void> main() async {
       ),
     );
   } catch (e) {
-    // Fallback if camera initialization fails
+    // Fallback if camera fails to start
     runApp(
       ChangeNotifierProvider(
         create: (_) => ThemeProvider(),

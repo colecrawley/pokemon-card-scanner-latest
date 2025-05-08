@@ -36,17 +36,17 @@ class TFLiteHelper {
 
   static Future<Interpreter> loadModel(String assetPath) async {
     try {
-      // Load the model from the asset bundle
+
       final modelData = await rootBundle.load(assetPath);
 
-      // Get the temporary directory where the model file will be stored
+
       final tempDir = await getTemporaryDirectory();
       final modelFile = File('${tempDir.path}/${assetPath.split('/').last}');
 
-      // Write the model data to the temp directory
+
       await modelFile.writeAsBytes(modelData.buffer.asUint8List());
 
-      // Create an interpreter from the model file
+
       return Interpreter.fromFile(modelFile);
     } catch (e) {
       print('Error loading model from $assetPath: $e');
@@ -56,7 +56,7 @@ class TFLiteHelper {
 
   static Future<List<String>> loadLabels(String assetPath) async {
     try {
-      // Load the labels from the asset bundle
+
       final labelsData = await rootBundle.loadString(assetPath);
       return labelsData.split('\n').map((label) => label.trim()).toList();
     } catch (e) {
@@ -87,14 +87,14 @@ class TFLiteHelper {
       final resized = img.copyResize(image, width: 224, height: 224);
       final input = _imageToTensor(resized);
 
-      // Prepare output tensor based on model's output shape
+
       final outputShape = _setModel!.getOutputTensor(0).shape;
       final output = List.filled(outputShape.reduce((a, b) => a * b), 0.0)
           .reshape(outputShape);
 
       _setModel!.run(input, output);
 
-      // Get the index of the highest confidence
+
       final index = _findMaxIndex(output[0]);
       return _setLabels.isNotEmpty && index < _setLabels.length
           ? _setLabels[index]
@@ -106,7 +106,7 @@ class TFLiteHelper {
   }
 
   static Future<String?> predictCardId(File imageFile, String set) async {
-    // Normalize the set name to match the model keys
+
     final normalizedSet = set.toLowerCase().replaceAll(' ', '_');
     final model = _cardModels[normalizedSet];
     final labels = _cardLabels[normalizedSet];

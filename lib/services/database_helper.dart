@@ -20,7 +20,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2, // Increment version for schema changes
+      version: 2, // change version for schema changes
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );

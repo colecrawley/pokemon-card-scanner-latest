@@ -312,7 +312,7 @@ class _ProfilePageState extends State<ProfilePage> {
             children: [
               Row(
                 children: [
-                  // Username text with gradient
+
                   ShaderMask(
                     shaderCallback: (bounds) =>
                         LinearGradient(
@@ -340,7 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     constraints: const BoxConstraints(),
                     // Remove default padding
                     padding: const EdgeInsets.only(
-                        left: 4), // Add small padding to the left
+                        left: 4),
                   ),
                 ],
               ),
@@ -527,7 +527,7 @@ class _ProfilePageState extends State<ProfilePage> {
               // Main content
               SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(16), // Reset padding
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -540,7 +540,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
 
-              // Settings button positioned at top right
+
               Positioned(
                 top: 8,
                 right: 8,

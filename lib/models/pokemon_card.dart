@@ -3,8 +3,8 @@ class CardData {
   final String id;
   final String name;
   final String imageUrl;
-  double marketPrice; // Changed to non-final
-  double priceChange; // Changed to non-final
+  double marketPrice;
+  double priceChange;
   final String setCode;
   final String cardNumber;
   final double? lastMarketPrice;
